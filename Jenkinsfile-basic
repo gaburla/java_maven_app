@@ -23,10 +23,8 @@ pipeline{
         }
         stage ('Package and Test Code'){
             steps{
-                sh '''
-                  mvn test
-                  mvn package
-                '''
+                sh  "mvn test"
+                sh  "mvn package"
             }
         }
         stage('Building image'){
