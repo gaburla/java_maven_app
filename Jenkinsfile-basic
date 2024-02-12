@@ -1,6 +1,10 @@
 pipeline{
     agent any
 
+    tools {
+        maven "mvn"
+    }
+
     environment {
 
         registry = "bagrat92/java-maven-app"
