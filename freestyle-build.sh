@@ -1,4 +1,3 @@
 npm --version
 uptime
-
 pwd
