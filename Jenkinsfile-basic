@@ -8,13 +8,12 @@ pipeline{
     }
 
     stages{
-        stage ('Pull Code from GutHub'){
-            steps{
-                sh '''
-                  ls -lah
-                  mvn --version
-                '''
-            }
+        stage ('Pull Code from GitHub'){
+            script {
+                    git branch: 'master',
+                        credentialsId: 'github_key',
+                        url: 'git@github.com:bagrat92/java_maven_app.git'
+                }
         }
         stage ('Package and Test Code'){
             steps{
