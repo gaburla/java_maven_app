@@ -9,11 +9,13 @@ pipeline{
 
     stages{
         stage ('Pull Code from GitHub'){
-            script {
+            steps{
+                script {
                     git branch: 'master',
                         credentialsId: 'github_key',
                         url: 'git@github.com:bagrat92/java_maven_app.git'
                 }
+            }
         }
         stage ('Package and Test Code'){
             steps{
