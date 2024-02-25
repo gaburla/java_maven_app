@@ -39,24 +39,20 @@ pipeline {
                 '''
             }
         }
-        stage('Build image') {
-            steps {
-                sh '''
-                    docker build -t ${env.ecrRepository}:${BUILD_ID} .
-                '''
-            }
-        }
         stage('Build and Push to AWS ECR') {
             steps {
                 script {
+                    sh "docker build -t lesson4:${BUILD_ID} ."
                     // AWS ECR login
-                    sh "aws ecr get-login-password --region ${env.awsRegion} | docker login --username AWS --password-stdin ${env.registry}"
+                    sh "aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 319952980369.dkr.ecr.us-east-2.amazonaws.com"
+
+                    sh "docker build -t lesson4test ."
 
                     // Docker tag
-                    sh "docker tag ${env.ecrRepository}:${BUILD_ID} ${env.registry}/${env.ecrRepository}:${BUILD_ID}"
+                    sh "docker tag lesson4test:latest 319952980369.dkr.ecr.us-east-2.amazonaws.com/lesson4test:latest"
 
                     // Docker push
-                    sh "docker push ${env.registry}/${env.ecrRepository}:${BUILD_ID}"
+                    sh "docker push 319952980369.dkr.ecr.us-east-2.amazonaws.com/lesson4test:latest"
                 }
             }
         }
