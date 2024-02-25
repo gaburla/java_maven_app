@@ -40,7 +40,7 @@ pipeline{
                     [usernamePassword
                         (credentialsId: 'bagrat92', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
                         sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-                        sh 'docker push ${registry}:${BUILD_ID}'
+                        sh 'docker push ${registry}:${BUILD_ID}aaaa'
                     }
                 }
         }
