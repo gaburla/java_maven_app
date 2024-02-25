@@ -1,4 +1,4 @@
-pipeline{
+pipeline {
     agent any
 
     tools {
@@ -6,43 +6,59 @@ pipeline{
     }
 
     environment {
-
-        registry = "bagrat92/java-maven-app"
-    
+        registry = "319952980369.dkr.ecr.us-east-2.amazonaws.com"
+        awsRegion = "us-east-2"
+        ecrRepository = "lesson4test"
     }
 
-    stages{
-        stage ('Pull Code from GitHub'){
-            steps{
+    stages {
+        stage('Pull Code from GitHub') {
+            steps {
                 script {
                     git branch: 'master',
-                        credentialsId: 'github_key',
-                        url: 'git@github.com:bagrat92/java_maven_app.git'
+                        credentialsId: 'gaburla_git_key',
+                        url: 'git@github.com:gaburla/java_maven_app.git'
                 }
             }
         }
-        stage ('Package and Test Code'){
-            steps{
-                sh  "mvn test"
-                sh  "mvn package"
+        stage('Package and Test Code') {
+            steps {
+                sh "mvn test"
+                sh "mvn package"
             }
         }
-        stage('Building image'){
-            steps{
+        stage('Copy image') {
+            steps {
                 sh '''
-                  docker build -t ${registry}:${BUILD_ID} .
+                    lm="$HOME/shared/$BUILD_NUMBER"
+                    mkdir "$lm"
+                    echo "$lm created"
+
+                    cp -rf ./target/java-maven-app-*.jar "$lm/"
+                    echo "copied"
                 '''
             }
         }
-        stage('Docker Push'){
+        stage('Build image') {
             steps {
-                withCredentials(
-                    [usernamePassword
-                        (credentialsId: 'bagrat92', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
-                        sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-                        sh 'docker push ${registry}:${BUILD_ID}aaaa'
-                    }
+                sh '''
+                    docker build -t ${env.ecrRepository}:${BUILD_ID} .
+                '''
+            }
+        }
+        stage('Build and Push to AWS ECR') {
+            steps {
+                script {
+                    // AWS ECR login
+                    sh "aws ecr get-login-password --region ${env.awsRegion} | docker login --username AWS --password-stdin ${env.registry}"
+
+                    // Docker tag
+                    sh "docker tag ${env.ecrRepository}:${BUILD_ID} ${env.registry}/${env.ecrRepository}:${BUILD_ID}"
+
+                    // Docker push
+                    sh "docker push ${env.registry}/${env.ecrRepository}:${BUILD_ID}"
                 }
+            }
         }
     }
 }
