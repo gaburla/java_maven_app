@@ -35,7 +35,7 @@ pipeline {
                     echo "$lm created"
 
                     cp -rf ./target/java-maven-app-*.jar "$lm/"
-                    echo "copied"
+                    echo "copied ok"
                 '''
             }
         }
